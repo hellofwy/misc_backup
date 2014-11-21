@@ -16,7 +16,9 @@ usage()
 {
    echo "\
 Usage:  `basename $0` [-i interface] -l limit -p pid [-t interval]
-        interface default eth0, limit in bytes, timeout in seconds
+        interface default eth0,
+        limit in bytes or GB/GiB(1000 or 1024 base), MB/MiB, KB/KiB, TB/TiB etc,
+        timeout in seconds
         check interval default 10"
 }
 # options processing
@@ -34,6 +36,17 @@ while [ $# -gt 1 ]; do
         -l )
             shift
             LIMIT=$1
+            LIMIT=`echo $LIMIT |
+            sed -E 's/[kK]i[bB]?/ * 1024/' |
+            sed -E 's/[mM]i[bB]?/ * 1024 * 1024/' |
+            sed -E 's/[gG]i[bB]?/ * 1024 * 1024 * 1024/' |
+            sed -E 's/[tT]i[bB]?/ * 1024 * 1024 * 1024 * 1024/' |
+            sed -E 's/[kK][bB]?/ * 1000/' |
+            sed -E 's/[mM][bB]?/ * 1000 * 1000/' |
+            sed -E 's/[gG][bB]?/ * 1000 * 1000 * 1000/' |
+            sed -E 's/[tT][bB]?/ * 1000 * 1000 * 1000 * 1000/' |
+            bc |
+            awk '{printf("%d", $1)}'`
             ;;
         -p )
             shift
