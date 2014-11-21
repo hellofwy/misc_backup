@@ -1,13 +1,55 @@
 #/bin/bash
 # check the net_traffic by ifconfig and turn off the net by iptables or kill
 # the program using the net. this is for my linode vps.
-if [ ! -z $1 ] 
-then
-    LIMIT=$1
-else
-    echo 'Usage: ' `basename $0` 'limit in bytes'
+
+# which interface to monitor
+INETF=eth0
+# the loop time out(check interval) in seconds
+TO=10
+# traffic limit
+LIMIT=0
+# program's pid for kill
+PROG=
+usage()
+{
+   echo "\
+Usage:  `basename $0` [-i interface] -l limit -p pid [-t interval]
+        interface default eth0, limit in bytes, timeout in seconds
+        check interval default 10"
+}
+# options processing
+if [ $# -lt 1 ]; then
+    usage
     exit 1
 fi
+
+while [ $# -gt 1 ]; do
+    case $1 in
+        -i )
+            shift
+            $INETF=$1
+            ;;
+        -l )
+            shift
+            LIMIT=$1
+            ;;
+        -p )
+            shift
+            PROG=$1
+            ;;
+        -t )
+            shift
+            TO=$1
+            ;;
+        * )
+            echo 'option error!'
+            usage
+    esac
+    shift
+done
+#echo $LIMIT "\n" $PROG "\n" $TO
+#exit
+
 # get the traffic
 # ifconfig output:
 # eth0      Link encap:Ethernet  HWaddr   
@@ -19,14 +61,17 @@ fi
 #           collisions:0 txqueuelen:1000 
 #           RX bytes:346708386 (346.7 MB)  TX bytes:25449660 (25.4 MB)
 #           Interrupt:16 
-INETF=eth0
 while true
 do
     BW=`ifconfig $INETF | sed -n '/TX bytes/ s/.*TX bytes:\([0-9]*\)\s.*/\1/p'` 
     #echo $BW
     if ( (( BW-LIMIT > 0 )) )
     then
-        echo out limit
+        #echo out limit
+        kill $PROG
+        #echo $?
+        exit $?
     fi
-    sleep 1
+    echo not over limit
+    sleep $TO
 done
