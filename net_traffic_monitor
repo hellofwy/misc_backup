@@ -1,0 +1,26 @@
+#/bin/bash
+# check the net_traffic by ifconfig and turn off the net by iptables or kill
+# the program using the net. this is for my linode vps.
+LIMIT=3000
+# get the traffic
+# ifconfig output:
+# eth0      Link encap:Ethernet  HWaddr   
+#           inet addr:192.168.1.100  Bcast:192.168.1.255  Mask:255.255.255.0
+#           inet6 addr: fe80::ba70:f4ff:fe1a:ed7c/64 Scope:Link
+#           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+#           RX packets:277488 errors:0 dropped:0 overruns:0 frame:0
+#           TX packets:201524 errors:0 dropped:0 overruns:0 carrier:0
+#           collisions:0 txqueuelen:1000 
+#           RX bytes:346708386 (346.7 MB)  TX bytes:25449660 (25.4 MB)
+#           Interrupt:16 
+INETF=eth0
+while true
+do
+    BW=`ifconfig $INETF | sed -n '/TX bytes/ s/.*TX bytes:\([0-9]*\)\s.*/\1/p'` 
+    #echo $BW
+    if ( [[ BW-LIMIT > 0 ]] )
+    then
+        echo out limit
+    fi
+    sleep 1
+done
