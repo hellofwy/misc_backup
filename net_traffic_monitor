@@ -46,7 +46,7 @@ while [ $# -gt 1 ]; do
             sed -E 's/[gG][bB]?/ * 1000 * 1000 * 1000/' |
             sed -E 's/[tT][bB]?/ * 1000 * 1000 * 1000 * 1000/' |
             bc |
-            awk '{printf("%d", $1)}'`
+            awk '{printf("%.0f", $1)}'`
             ;;
         -p )
             shift
@@ -79,7 +79,7 @@ done
 while true
 do
     BW=`ifconfig $INETF | sed -n '/TX bytes/ s/.*TX bytes:\([0-9]*\)\s.*/\1/p'` 
-    #echo $BW
+    #echo $BW " " $LIMIT
     if ( (( BW-LIMIT > 0 )) )
     then
         #echo out limit
