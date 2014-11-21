@@ -10,6 +10,8 @@ TO=10
 LIMIT=0
 # program's pid for kill
 PROG=
+
+# command options explainment
 usage()
 {
    echo "\
@@ -72,6 +74,6 @@ do
         #echo $?
         exit $?
     fi
-    echo not over limit
+    #echo not over limit
     sleep $TO
 done
