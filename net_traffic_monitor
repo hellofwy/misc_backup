@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 # check the net_traffic by ifconfig and turn off the net by iptables or kill
 # the program using the net. this is for my linode vps.
 
@@ -84,6 +84,7 @@ do
     then
         #echo out limit
         kill $PROG
+        iptables -t filter -P OUTPUT DROP
         #echo $?
         exit $?
     fi
